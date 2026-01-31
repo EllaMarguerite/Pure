@@ -88,6 +88,16 @@ collections_config:
     disable_add: false
     disable_add_folder: false
     disable_file_actions: false
+_inputs:
+  $.tags:
+    type: multiselect
+    options:
+      options:
+      values: data.tags
+    cascade: true
+data_config:
+  tags:
+    path: data/tags.yml
 commit_templates:
   - template_string: '{message}'
 timezone: Pacific/Auckland
