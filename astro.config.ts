@@ -35,8 +35,14 @@ export default defineConfig({
 
   // [Adapter]
   // https://docs.astro.build/en/guides/deploy/
-  adapter: vercel(),
-  output: 'server',
+  // CloudCannon requires static site generation (no adapter needed)
+  // adapter: vercel(),
+  // output: 'server',
+  // For Vercel SSR deployment, uncomment:
+  // adapter: vercel(),
+  // output: 'server',
+  // For CloudCannon static deployment (default):
+  output: 'static',
   // Local (standalone)
   // adapter: node({ mode: 'standalone' }),
   // output: 'server',
