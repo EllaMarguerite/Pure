@@ -4,7 +4,7 @@ import { type CollectionEntry, render } from 'astro:content'
 import { MediumZoom } from 'astro-pure/advanced'
 import { TOC } from 'astro-pure/components/pages'
 import { getBlogCollection, sortMDByDate } from 'astro-pure/server'
-import { Button } from 'astro-pure/user'
+import { Button, Icon } from 'astro-pure/user'
 import PageLayout from '@/layouts/ContentLayout.astro'
 
 import DocsContents from './DocsContents.astro'
@@ -25,13 +25,29 @@ type Props = {
 
 const { post } = Astro.props
 const { Content, headings } = await render(post)
-const { description, title } = post.data
+const { description, title, tags } = post.data
 
 const editPath = `https://github.com/cworld1/astro-theme-pure/edit/main/${post.filePath}`
 ---
 
 <PageLayout meta={{ description, title }} back='/docs'>
   <Fragment slot='sidebar'>
+    {/* Tags */}
+    {!!tags?.length && (
+      <aside class='mb-6'>
+        <h2 class='mb-4 flex items-center text-lg font-medium'>
+          <Icon name='tag-2' class='me-2' />
+          Tags
+        </h2>
+        <ul class='text-bgColor flex flex-wrap gap-2'>
+          {tags.map((tag: string) => (
+            <li>
+              <Button title={tag} href={`/docs/tags/${tag}`} variant='pill' />
+            </li>
+          ))}
+        </ul>
+      </aside>
+    )}
     {!!headings.length && <TOC {headings} />}
     <DocsContents class='docs-toc block mt-3' />
   </Fragment>
@@ -47,6 +63,26 @@ const editPath = `https://github.com/cworld1/astro-theme-pure/edit/main/${post.f
           <blockquote class='text-sm italic text-muted-foreground'>
             <q>{description}</q>
           </blockquote>
+        )
+      }
+      {
+        // Tags
+        !!tags?.length && (
+          <span class='flex items-center gap-1'>
+            <Icon name='hashtag' class='size-5' />
+            {tags.map((tag: string, i: number) => (
+              <div>
+                <a
+                  aria-label={`View more docs with the tag ${tag}`}
+                  class='hover:underline hover:underline-offset-4'
+                  href={`/docs/tags/${tag}`}
+                >
+                  {tag}
+                </a>
+                {i < tags.length - 1 && '/'}
+              </div>
+            ))}
+          </span>
         )
       }
     </div>

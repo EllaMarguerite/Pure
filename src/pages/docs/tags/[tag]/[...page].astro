@@ -1,0 +1,74 @@
+---
+import type { GetStaticPaths, Page } from 'astro'
+import type { CollectionEntry } from 'astro:content'
+
+import { Paginator, PostPreview } from 'astro-pure/components/pages'
+import { getBlogCollection, getUniqueTags, sortMDByDate } from 'astro-pure/server'
+import { Button } from 'astro-pure/user'
+import PageLayout from '@/layouts/BaseLayout.astro'
+import config from '@/site-config'
+
+export const prerender = true
+
+export const getStaticPaths: GetStaticPaths = async ({ paginate }) => {
+  const allDocs = await getBlogCollection('docs')
+  const allDocsByDate = sortMDByDate(allDocs)
+  const uniqueTags = getUniqueTags(allDocsByDate)
+
+  return uniqueTags.flatMap((tag) => {
+    const filterDocs = allDocsByDate.filter((doc) => doc.data.tags.includes(tag))
+    return paginate(filterDocs, {
+      pageSize: config.content.blogPageSize,
+      params: { tag }
+    })
+  })
+}
+
+interface Props {
+  page: Page<CollectionEntry<'docs'>>
+}
+
+const { page } = Astro.props
+const { tag } = Astro.params
+
+const meta = {
+  description: `View all docs with the tag - ${tag}`,
+  title: `Tag: ${tag}`
+}
+
+const paginationProps = {
+  ...(page.url.prev && {
+    prevUrl: {
+      text: `← Previous Docs`,
+      url: page.url.prev
+    }
+  }),
+  ...(page.url.next && {
+    nextUrl: {
+      text: `Next Docs →`,
+      url: page.url.next
+    }
+  })
+}
+---
+
+<PageLayout {meta}>
+  <Button title='Back' href='/docs' variant='back' />
+  <main class='mt-6 lg:mt-10'>
+    <div id='content-header' class='animate'>
+      <h1 class='mb-6 flex items-end gap-x-2 text-3xl font-medium'>
+        Tags:
+        <span class='text-2xl'>#{tag}</span>
+      </h1>
+    </div>
+
+    <section id='content' class='animate' aria-label='Docs list'>
+      <ul class='flex flex-col gap-y-3 text-start'>
+        {page.data.map((doc) => (
+          <PostPreview post={doc} detailed basePath='/docs' tagsBasePath='/docs/tags' />
+        ))}
+      </ul>
+      <Paginator {...paginationProps} />
+    </section>
+  </main>
+</PageLayout>
