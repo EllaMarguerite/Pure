@@ -93,14 +93,17 @@ _inputs:
     type: multiselect
     options:
       allow_empty: true
-      values: data.tags
+      values: _select_data.tags[?(@.type == 'docs')].name
       required: true
     cascade: true
+_select_data:
+  tags:
+    - name: Mercenary
+      type: docs
+    - name: Worldbuilding
+      type: blog
 commit_templates:
   - template_string: '{message}'
-data_config:
-  tags:
-    path: src/data/tags.yml
 timezone: Pacific/Auckland
 markdown:
   engine: commonmark
